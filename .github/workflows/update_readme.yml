@@ -92,6 +92,7 @@ jobs:
       RESULT: ${{needs.add_tag.result}}
 
     steps:
+    - uses: actions/checkout@v6
     - name: failed checks comment
       if: ${{env.CHECK_OUTPUT != 'True'}}
       run: export COMMENT="Not allowed to add username to repo -> $CHECK_OUTPUT"
@@ -116,6 +117,7 @@ jobs:
     needs: [add_tag, comment_on_issue]
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v6
     - name: close issue
       run: gh issue close "$NUMBER"
       env:

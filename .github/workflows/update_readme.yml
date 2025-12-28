@@ -95,15 +95,15 @@ jobs:
     - uses: actions/checkout@v6
     - name: failed checks comment
       if: ${{env.CHECK_OUTPUT != 'True'}}
-      run: export COMMENT="Not allowed to add username to repo -> $CHECK_OUTPUT"
+      run: echo "COMMENT=Not allowed to add username to repo -> $CHECK_OUTPUT" >> $GITHUB_ENV
 
     - name: full success comment
       if: ${{env.RESULT == 'success' }}
-      run: export COMMENT="Your username has been added to the banner! Thank you for your interest, go check it out at https://github.com/BertPlasschaert"
+      run: echo "COMMENT=Your username has been added to the banner! Thank you for your interest, go check it out at https://github.com/BertPlasschaert" >> $GITHUB_ENV
 
     - name: unexpected issue comment
       if: ${{env.RESULT == 'failure'}}
-      run: export COMMENT="Unexpected issue occured when adding username"
+      run: echo "COMMENT=Unexpected issue occured when adding username" >> $GITHUB_ENV
 
     - name: add comment to issue
       run: gh issue comment "$NUMBER" --body "$COMMENT"

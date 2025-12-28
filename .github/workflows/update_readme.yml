@@ -103,7 +103,7 @@ jobs:
 
     - name: unexpected issue comment
       if: ${{env.RESULT == 'failure'}}
-      run: echo "COMMENT=Unexpected issue occured when adding username" >> $GITHUB_ENV
+      run: echo "COMMENT=Unexpected issue occured when adding username \n for more details check the action logs https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}"" >> $GITHUB_ENV
 
     - name: add comment to issue
       run: gh issue comment "$NUMBER" --body "$COMMENT"

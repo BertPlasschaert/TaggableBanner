@@ -15,7 +15,7 @@ jobs:
   check_username:
     name: Check username
     runs-on: ubuntu-latest
-    permissions:                    # Global permissions configuration starts here
+    permissions:
       contents: read
     outputs:
       valid_username: ${{ steps.check.outputs.check}}
@@ -93,6 +93,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+
     - name: failed checks comment
       if: ${{env.CHECK_OUTPUT != 'True'}}
       run: echo "COMMENT=Not allowed to add username to repo > $CHECK_OUTPUT" >> $GITHUB_ENV
@@ -103,13 +104,12 @@ jobs:
 
     - name: unexpected issue comment
       if: ${{env.RESULT == 'failure'}}
-      run: echo "COMMENT=Unexpected issue occured when adding username \n for more details check the action logs https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}" >> $GITHUB_ENV
+      run: echo "COMMENT=Unexpected issue occured when adding username. For more details check the action logs https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}" >> $GITHUB_ENV
 
     - name: add comment to issue
       run: gh issue comment "$NUMBER" --body "$COMMENT"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # GH_REPO: ${{ github.repository }}
         NUMBER: ${{ github.event.issue.number }}
 
   close_issue:
@@ -119,11 +119,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
+
     - name: close issue
       if: ${{needs.add_tag.result != 'failure'}}
       run: gh issue close "$NUMBER"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # GH_REPO: ${{ github.repository }}
         NUMBER: ${{ github.event.issue.number }}
 

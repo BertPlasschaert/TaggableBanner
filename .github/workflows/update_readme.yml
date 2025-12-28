@@ -1,5 +1,5 @@
 name: Taggable Banner
-run-name: add tag of {{ github.actor }} to homepage
+run-name: add tag of ${{ github.actor }} to homepage
 on:
   issues:
     types: [opened]
@@ -66,6 +66,9 @@ jobs:
 
     - name: add tag
       run: python3 -m taggablebanner.add_tag
+
+    - name: debug create tmp file
+      run: touch $(date "+%Y.%m.%d-%H.%M.%S").tmp
 
     - name: commit and push updates
       env:

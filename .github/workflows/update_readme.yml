@@ -95,7 +95,7 @@ jobs:
     - uses: actions/checkout@v6
     - name: failed checks comment
       if: ${{env.CHECK_OUTPUT != 'True'}}
-      run: echo "COMMENT=Not allowed to add username to repo -> $CHECK_OUTPUT" >> $GITHUB_ENV
+      run: echo "COMMENT=Not allowed to add username to repo:\ $CHECK_OUTPUT" >> $GITHUB_ENV
 
     - name: full success comment
       if: ${{env.RESULT == 'success' }}
@@ -115,10 +115,12 @@ jobs:
   close_issue:
     name: "close the triggering issue"
     needs: [add_tag, comment_on_issue]
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
     - name: close issue
+      if: ${{needs.add_tag.result != 'failed'}}
       run: gh issue close "$NUMBER"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

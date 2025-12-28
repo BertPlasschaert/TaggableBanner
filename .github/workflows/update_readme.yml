@@ -1,0 +1,122 @@
+name: Taggable Banner
+run-name: add tag of {{ github.actor }} to homepage
+on:
+  issues:
+    types: [opened]
+
+# Prevent parallel executions
+concurrency:
+  group: adding_username
+  cancel-in-progress: false
+
+
+jobs:
+
+  check_username:
+    name: Check username
+    runs-on: ubuntu-latest
+    permissions:                    # Global permissions configuration starts here
+      contents: read
+    outputs:
+      valid_username: ${{ steps.check.outputs.check}}
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./python
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: "Set up Python"
+      uses: actions/setup-python@v6
+      with:
+        python-version-file: "pyproject.toml"
+
+    - name: echo check if tag is allowed
+      run: echo $(python3 -m taggablebanner.validate_tag)
+
+    - id: check
+      name: check if tag is allowed
+      run: echo "check=$(python3 -m taggablebanner.validate_tag)" >> "$GITHUB_OUTPUT"
+
+
+  add_tag:
+    name: Add users' tag
+    needs: check_username
+    if: "${{ needs.check_username.outputs.valid_username == 'True' }}"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./python
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: "Set up Python"
+      uses: actions/setup-python@v6
+      with:
+        python-version-file: "pyproject.toml"
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+
+    - name: Setup python project
+      run: uv sync --locked
+
+    - name: add tag
+      run: python3 -m taggablebanner.add_tag
+
+    - name: commit and push updates
+      env:
+        ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git commit -m "added username: ${ISSUE_AUTHOR}"
+        git push
+
+
+  comment_on_issue:
+
+    name: "add comment to the triggering issue"
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [check_username, add_tag]
+    env:
+      CHECK_OUTPUT: ${{needs.check_username.outputs.valid_username}}
+      RESULT: ${{needs.add_tag.result}}
+
+    steps:
+    - name: failed checks comment
+      if: ${{env.CHECK_OUTPUT != 'True'}}
+      run: export COMMENT="Not allowed to add username to repo -> $CHECK_OUTPUT"
+
+    - name: full success comment
+      if: ${{env.RESULT == 'success' }}
+      run: export COMMENT="Your username has been added to the banner! Thank you for your interest, go check it out at https://github.com/BertPlasschaert"
+
+    - name: unexpected issue comment
+      if: ${{env.RESULT == 'failure'}}
+      run: export COMMENT="Unexpected issue occured when adding username"
+
+    - name: add comment to issue
+      run: gh issue comment "$NUMBER" --body "$COMMENT"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # GH_REPO: ${{ github.repository }}
+        NUMBER: ${{ github.event.issue.number }}
+
+  close_issue:
+    name: "close the triggering issue"
+    needs: [add_tag, comment_on_issue]
+    runs-on: ubuntu-latest
+    steps:
+    - name: close issue
+      run: gh issue close "$NUMBER"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # GH_REPO: ${{ github.repository }}
+        NUMBER: ${{ github.event.issue.number }}
+

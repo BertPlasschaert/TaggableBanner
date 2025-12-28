@@ -264,7 +264,7 @@ def get_existing_tags() -> list[svg.Text]:
 
 
 if __name__ == "__main__":
-    for i in range(200):
+    for i in range(20):
         result = draw(new_name=f"Bert{i}")
 
         with open(TARGET_FILE, "w", encoding="UTF-8") as f:

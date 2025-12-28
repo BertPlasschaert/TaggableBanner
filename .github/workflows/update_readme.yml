@@ -95,7 +95,7 @@ jobs:
     - uses: actions/checkout@v6
     - name: failed checks comment
       if: ${{env.CHECK_OUTPUT != 'True'}}
-      run: echo "COMMENT=Not allowed to add username to repo:\ $CHECK_OUTPUT" >> $GITHUB_ENV
+      run: echo "COMMENT=Not allowed to add username to repo > $CHECK_OUTPUT" >> $GITHUB_ENV
 
     - name: full success comment
       if: ${{env.RESULT == 'success' }}

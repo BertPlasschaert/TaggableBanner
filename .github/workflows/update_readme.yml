@@ -120,11 +120,9 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - name: close issue
-      if: ${{needs.add_tag.result != 'failed'}}
-      run: echo "here>>>" && echo $status
-      # run: gh issue close "$NUMBER"
+      if: ${{needs.add_tag.result != 'failure'}}
+      run: gh issue close "$NUMBER"
       env:
-        status: ${{needs.add_tag.result}}
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # GH_REPO: ${{ github.repository }}
         NUMBER: ${{ github.event.issue.number }}

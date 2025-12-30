@@ -1,0 +1,12 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 1500 500"
+  overflow="hidden"
+>
+  <circle class="lightdark" cx="750" r="200" />
+  <style xmlns="http://www.w3.org/2000/svg">
+    .lightdark {
+      fill: light-dark(red, yellow);
+    }
+  </style>
+</svg>

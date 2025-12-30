@@ -5,6 +5,9 @@
 >
   <circle class="lightdark" cx="750" r="200" />
   <style xmlns="http://www.w3.org/2000/svg">
+    :root {
+      color-scheme: light dark;
+    }
     .lightdark {
       fill: light-dark(red, yellow);
     }

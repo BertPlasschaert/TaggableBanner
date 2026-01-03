@@ -22,4 +22,4 @@ if args.action == "check":
     main.run_username_check(args.username)
 
 if args.action == "add":
-    print("Adding name to page")
+    main.add_username(args.username)

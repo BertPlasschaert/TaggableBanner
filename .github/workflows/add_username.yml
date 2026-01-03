@@ -15,6 +15,7 @@ jobs:
   check_username:
     name: Check username
     runs-on: ubuntu-latest
+    if: startsWith(github.event.issue.title, 'Add Tag:')
     permissions:
       contents: read
     outputs:
@@ -32,11 +33,11 @@ jobs:
         python-version-file: "pyproject.toml"
 
     - name: echo check if tag is allowed
-      run: echo $(python3 -m taggablebanner.validate_tag)
+
 
     - id: check
       name: check if tag is allowed
-      run: echo "check=$(python3 -m taggablebanner.validate_tag)" >> "$GITHUB_OUTPUT"
+      run: echo "check=$(python3 python/taggablebanner/cli.py check '${{ github.triggering_actor }}')" >> "$GITHUB_OUTPUT"
 
 
   add_tag:

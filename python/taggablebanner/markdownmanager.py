@@ -1,7 +1,10 @@
+import datetime
 from pathlib import Path
 
 START_MARKER = "<!--begin usernames-->\n"
 END_MARKER = "<!--end usernames-->\n"
+
+MD_FILE = Path("README.md")
 
 
 def _get_md_lines(file_path: Path) -> list[str]:
@@ -19,21 +22,25 @@ def _get_name_lines(lines: list[str]) -> list[str]:
 def _extract_names(lines: list[str]) -> list[str]:
     names: list[str] = list()
     for line in lines:
-        names.append(line.split("[")[1].split("]")[0])
+        try:
+            names.append(line.split("[")[1].split("]")[0])
+        except IndexError as e:
+            raise ValueError(f"name values in README.md might be mallformed: {e}")
 
     return names
 
 
-def get_names(file_path) -> list[str]:
-    lines = _get_md_lines(file_path)
+def get_names() -> list[str]:
+    lines = _get_md_lines(MD_FILE)
     name_lines = _get_name_lines(lines)
     return _extract_names(name_lines)
 
 
-def add_name(name: str, file_path: Path) -> None:
-    md_lines = _get_md_lines(file_path)
+def add_name(name: str) -> None:
+    md_lines = _get_md_lines(MD_FILE)
     end_index = md_lines.index(END_MARKER)
-    md_lines.insert(end_index, f"###### {name} on \n")
+    date = datetime.datetime.now().strftime("%d/%m/%Y")
+    md_lines.insert(end_index, f"###### [{name}] on {date}\n")
 
-    with open(file_path, "w") as f:
+    with open(MD_FILE, "w") as f:
         f.writelines(md_lines)

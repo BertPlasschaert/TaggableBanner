@@ -319,12 +319,15 @@ def minidom_to_tag(minidom_element: minidom.Element) -> TextBounded:
         y=int(minidom_element.getAttribute("y")),
         rotation=int(rotation_degrees),
         font=font,
-        font_size=int(minidom_element.getAttribute("font-size")),
+        font_size=int(float(minidom_element.getAttribute("font-size"))),
         color_class=minidom_element.getAttribute("class"),
     )
 
 
 def get_existing_tags() -> list[TextBounded]:
+    if not OUTPUT_FILE.exists():
+        return []
+
     with open(OUTPUT_FILE, "r", encoding="UTF-8") as svg_file:
         doc = minidom.parse(svg_file)
 
@@ -353,7 +356,7 @@ def get_existing_tags() -> list[TextBounded]:
 def add_tag(text: str) -> svg.SVG:
     tags = [element_tag(random_name()) for i in range(50)]
 
-    return svg.SVG(
+    result = svg.SVG(
         overflow="hidden",
         viewBox=svg.ViewBoxSpec(
             0,
@@ -375,9 +378,5 @@ def add_tag(text: str) -> svg.SVG:
         ],
     )
 
-
-if __name__ == "__main__":
-    output = add_tag().as_str()
-
     with open(OUTPUT_FILE, "w") as f:
-        f.write(output)
+        f.write(result.as_str())

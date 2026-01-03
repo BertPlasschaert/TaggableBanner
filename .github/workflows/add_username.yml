@@ -15,7 +15,7 @@ jobs:
   check_username:
     name: Check username
     runs-on: ubuntu-latest
-    if: startsWith(github.event.issue.title, 'Add Tag:')
+    # if: startsWith(github.event.issue.title, 'Add Tag:')
     permissions:
       contents: read
     outputs:
@@ -24,6 +24,7 @@ jobs:
       run:
         shell: bash
         working-directory: ./python
+
     steps:
     - uses: actions/checkout@v6
 
@@ -32,11 +33,13 @@ jobs:
       with:
         python-version-file: "pyproject.toml"
 
-    - name: echo check if tag is allowed
     - id: check
       name: check if tag is allowed
-      run: echo "check=$(python3 python/taggablebanner/cli.py check '${{ github.triggering_actor }}')" >> "$GITHUB_OUTPUT"
+      run: python3 taggablebanner/cli.py check 'Bert Plasschaert')
 
+    # - name: value of the script
+    #   run: echo "check=$(python3 taggablebanner/cli.py check 'Bert')"
+    #
 
   add_tag:
     name: Add users' tag
@@ -106,7 +109,8 @@ jobs:
       run: echo "COMMENT=Unexpected issue occured when adding username. For more details check the action logs https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}" >> $GITHUB_ENV
 
     - name: add comment to issue
-      run: gh issue comment "$NUMBER" --body "$COMMENT"
+      run: echo "adding comment --body $COMMENT"
+      # run: gh issue comment "$NUMBER" --body "$COMMENT"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NUMBER: ${{ github.event.issue.number }}
@@ -121,7 +125,8 @@ jobs:
 
     - name: close issue
       if: ${{needs.add_tag.result != 'failure'}}
-      run: gh issue close "$NUMBER"
+      # run: gh issue close "$NUMBER"
+      run: echo "closing issue"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NUMBER: ${{ github.event.issue.number }}

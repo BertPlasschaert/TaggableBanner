@@ -17,7 +17,7 @@ jobs:
   check_username:
     name: Check username
     runs-on: ubuntu-latest
-    if: github.event.issue.title == 'Add my username to the banner!')
+    if: github.event.issue.title == 'Add my username to the banner!'
     permissions:
       contents: read
 

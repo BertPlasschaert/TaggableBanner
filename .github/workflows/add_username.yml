@@ -84,8 +84,8 @@ jobs:
 
     name: "add comment to the triggering issue"
     runs-on: ubuntu-latest
-    if: ${{ always() }}
     needs: [check_username, add_tag]
+    if: ${{ always() }}
     env:
       CHECK: ${{needs.check_username.result}}
       RESULT: ${{needs.add_tag.result}}
@@ -107,6 +107,7 @@ jobs:
 
     - name: add comment to issue
       run: gh issue comment "$NUMBER" --body "$COMMENT"
+      if: ${{env.CHECK == 'skipped' }}
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NUMBER: ${{ github.event.issue.number }}
@@ -121,7 +122,7 @@ jobs:
 
     - name: close issue
       # only keep issue open if issue occured in add_tag step
-      if: ${{needs.add_tag.result != 'failure'}}
+      if: ${{needs.check_username.result != 'skipped' && needs.add_tag.result != 'failure'}}
       run: gh issue close "$NUMBER"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

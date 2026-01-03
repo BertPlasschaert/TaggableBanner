@@ -89,6 +89,9 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ always() }}
     needs: [check_username, add_tag]
+    env:
+      CHECK_RESULT: ${{needs.check_username.result}}
+      RESULT: ${{needs.add_tag.result}}
 
     steps:
     - uses: actions/checkout@v6

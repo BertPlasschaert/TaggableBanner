@@ -41,7 +41,7 @@ jobs:
 
     - id: check
       name: check if name is already used
-      run: uv run python/taggablebanner/cli.py check $ISSUE_AUTHOR
+      run: uv run python/taggablebanner/cli.py check "$ISSUE_AUTHOR"
 
 
 
@@ -51,9 +51,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    env:
-      # ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
-      ISSUE_AUTHOR: "BertPlasschaert"
 
     steps:
     - uses: actions/checkout@v6
@@ -73,7 +70,7 @@ jobs:
       run: echo "PYTHONPATH=$PWD/python" >> $GITHUB_ENV
 
     - name: add tag
-      run: uv run python/taggablebanner/cli.py add $ISSUE_AUTHOR
+      run: uv run python/taggablebanner/cli.py add "$ISSUE_AUTHOR"
 
     - name: commit and push updates
       run: |

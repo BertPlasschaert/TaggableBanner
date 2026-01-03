@@ -107,7 +107,7 @@ jobs:
 
     - name: add comment to issue
       run: gh issue comment "$NUMBER" --body "$COMMENT"
-      if: ${{env.CHECK == 'skipped' }}
+      if: ${{env.CHECK != 'skipped' }}
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NUMBER: ${{ github.event.issue.number }}

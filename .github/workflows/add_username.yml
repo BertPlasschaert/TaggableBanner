@@ -5,8 +5,7 @@ on:
     types: [opened]
 
 env:
-  # ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
-  ISSUE_AUTHOR: "Test User"
+  ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
 
 # Prevent parallel executions
 concurrency:
@@ -18,7 +17,7 @@ jobs:
   check_username:
     name: Check username
     runs-on: ubuntu-latest
-    # if: startsWith(github.event.issue.title, 'Add Tag:')
+    if: startsWith(github.event.issue.title, 'Add Tag:')
     permissions:
       contents: read
 
@@ -94,12 +93,6 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
-    - name: debug_check
-      run: echo "check=$CHECK"
-
-    - name: debug_result
-      run: echo "rebuild=$RESULT"
-
     - name: failed checks comment
       if: ${{env.CHECK == 'failure'}}
       run: echo "COMMENT=Name check failed, keep in mind you can only add your username once. For more details check the action logs https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}" >> $GITHUB_ENV
@@ -113,7 +106,6 @@ jobs:
       run: echo "COMMENT=Your username has been added to the banner! Thank you for your interest, go check it out at https://github.com/BertPlasschaert" >> $GITHUB_ENV
 
     - name: add comment to issue
-      # run: echo "adding comment --body $COMMENT"
       run: gh issue comment "$NUMBER" --body "$COMMENT"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -131,7 +123,6 @@ jobs:
       # only keep issue open if issue occured in add_tag step
       if: ${{needs.add_tag.result != 'failure'}}
       run: gh issue close "$NUMBER"
-      # run: echo "closing issue"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NUMBER: ${{ github.event.issue.number }}

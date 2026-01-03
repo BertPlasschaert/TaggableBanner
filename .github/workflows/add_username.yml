@@ -85,13 +85,17 @@ jobs:
     name: "add comment to the triggering issue"
     runs-on: ubuntu-latest
     needs: [check_username, add_tag]
-    if: ${{ always() }}
+    if: ${{ always() && needs.check_username.result != 'skipped'}}
     env:
       CHECK: ${{needs.check_username.result}}
       RESULT: ${{needs.add_tag.result}}
 
     steps:
     - uses: actions/checkout@v6
+
+    - name: debug
+      run: echo "check status $CHECK"
+
 
     - name: failed checks comment
       if: ${{env.CHECK == 'failure'}}
@@ -107,7 +111,6 @@ jobs:
 
     - name: add comment to issue
       run: gh issue comment "$NUMBER" --body "$COMMENT"
-      if: ${{env.CHECK != 'skipped' }}
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NUMBER: ${{ github.event.issue.number }}
@@ -115,14 +118,14 @@ jobs:
   close_issue:
     name: "close the triggering issue"
     needs: [add_tag, comment_on_issue]
-    if: ${{ always() }}
+    if: ${{ always() && needs.check_username.result != 'skipped'}}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
 
     - name: close issue
       # only keep issue open if issue occured in add_tag step
-      if: ${{needs.check_username.result != 'skipped' && needs.add_tag.result != 'failure'}}
+      if: ${{ needs.add_tag.result != 'failure'}}
       run: gh issue close "$NUMBER"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

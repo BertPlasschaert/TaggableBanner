@@ -11,4 +11,5 @@
 ###### [boi123456] on 03/01/2026
 <!--end usernames-->
 
-![example_banner](./test.svg)
+
+[Add your name!](https://github.com/BertPlasschaert/taggable_banner/issues/new?title=Add%20my%20username%20to%20the%20banner!&body=Just+push+%27Submit+new+issue%27.+You+don%27t+need+to+do+anything+else.)

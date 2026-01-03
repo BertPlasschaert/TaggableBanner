@@ -5,8 +5,7 @@ on:
     types: [opened]
 
 env:
-  # ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
-  ISSUE_AUTHOR: "boi123456"
+  ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
 
 # Prevent parallel executions
 concurrency:

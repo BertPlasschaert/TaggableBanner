@@ -20,10 +20,10 @@ jobs:
       contents: read
     outputs:
       valid_username: ${{ steps.check.outputs.check}}
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./python
+    # defaults:
+    #   run:
+    #     shell: bash
+    #     working-directory: ./python
 
     steps:
     - uses: actions/checkout@v6
@@ -35,7 +35,7 @@ jobs:
 
     - id: check
       name: check if tag is allowed
-      run: python3 taggablebanner/cli.py check 'Bert Plasschaert')
+      run: python3 python/taggablebanner/cli.py check 'Bert Plasschaert'
 
     # - name: value of the script
     #   run: echo "check=$(python3 taggablebanner/cli.py check 'Bert')"

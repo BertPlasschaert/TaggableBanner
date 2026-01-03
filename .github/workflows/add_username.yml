@@ -90,17 +90,20 @@ jobs:
     if: ${{ always() }}
     needs: [check_username, add_tag]
     env:
-      CHECK_RESULT: ${{needs.check_username.result}}
+      CHECK: ${{needs.check_username.result}}
       RESULT: ${{needs.add_tag.result}}
 
     steps:
     - uses: actions/checkout@v6
 
-    - name: debug
-      run: echo "check_output=$CHECK_RESULT"
+    - name: debug_check
+      run: echo "check=$CHECK"
+
+    - name: debug_result
+      run: echo "rebuild=$RESULT"
 
     - name: failed checks comment
-      if: ${{env.CHECK_RESULT == 'failure'}}
+      if: ${{env.CHECK == 'failure'}}
       run: echo "COMMENT=Name check failed, keep in mind you can only add your username once. For more details check the action logs https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}" >> $GITHUB_ENV
 
     - name: unexpected issue comment

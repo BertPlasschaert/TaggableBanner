@@ -33,8 +33,6 @@ jobs:
         python-version-file: "pyproject.toml"
 
     - name: echo check if tag is allowed
-
-
     - id: check
       name: check if tag is allowed
       run: echo "check=$(python3 python/taggablebanner/cli.py check '${{ github.triggering_actor }}')" >> "$GITHUB_OUTPUT"

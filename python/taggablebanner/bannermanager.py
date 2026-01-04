@@ -5,43 +5,15 @@ from xml.dom import minidom
 
 import svg
 
-from svgutils.safezones import SafeZone
-from svgutils.safezones import SafeZoneCircle
-from svgutils.safezones import SafeZoneRect
+from taggablebanner.svgutils.safezones import SafeZone
+from taggablebanner.svgutils.safezones import SafeZoneCircle
+from taggablebanner.svgutils.safezones import SafeZoneRect
 
-from svgutils.fontbb import FontBB
-from svgutils.colorpreset import ColorPreset
-from svgutils.textbounded import TextBounded
+from taggablebanner.svgutils.tag import Tag
+from taggablebanner.svgutils.tag import build_tag
+from taggablebanner.svgutils.tag import build_tag_from_minidom
 
-SVG_PARTS_FOLDER = Path("svg_parts")
-OUTPUT_FILE = Path("banner.svg")
-FONT_FOLDER = Path("fonts")
-
-WIDTH = 1500
-HEIGHT = 500
-
-CENTERX = round(WIDTH / 2)
-CENTERY = round(HEIGHT / 2)
-
-FONTS = [
-    FontBB("graffiti youth", 0.7, 0.4),
-    FontBB("graffiti city", 0.76, 0.43),
-    FontBB("shock graffiti", 0.65, 0.39),
-]
-
-COLOR_PRESETS = [
-    ColorPreset("title", "hsl(116,67%,66%)", "hsl(168,51%,53%)"),
-    ColorPreset("title_back", "hsl(101,100%,27%)", "hsl(176,48%,29%)"),
-    ColorPreset("hint", "hsl(321, 84%, 58%)", "hsl(112, 55%, 57%)"),
-    ColorPreset("bricks", "hsl(0,0%,85%)", "hsl(216, 34%, 11%)"),
-    ColorPreset("banner_background", "hsl(0,0%,95%)", "hsl(216,28%,7%)"),
-    ColorPreset("tag_orange", "hsl(13,100%,59%)", "hsl(13,81%,18%)"),
-    ColorPreset("tag_pink", "hsl(337,100%,63%)", "hsl(337,56%,27%)"),
-    ColorPreset("tag_blue", "hsl(205,100%,60%)", "hsl(205,100%,25%)"),
-    ColorPreset("tag_purple", "hsl(274,100%,72%)", "hsl(274,88%,23%)"),
-    ColorPreset("tag_green", "hsl(118,88%,47%)", "hsl(118,83%,19%)"),
-]
-TAG_COLOR_PRESETS = list(filter(lambda p: (p.name.startswith("tag_")), COLOR_PRESETS))
+from taggablebanner import const
 
 
 def random_name():
@@ -52,7 +24,7 @@ def random_name():
 
 
 def load_in_svg_component_from_file(file_name: str) -> str:
-    with open(Path(SVG_PARTS_FOLDER, file_name).with_suffix(".svg")) as f:
+    with open(Path(const.SVG_PARTS_FOLDER, file_name).with_suffix(".svg")) as f:
         return f.read()
 
 
@@ -60,8 +32,8 @@ def element_background() -> svg.G:
     background = svg.Rect(
         x=0,
         y=0,
-        width=WIDTH,
-        height=HEIGHT,
+        width=const.WIDTH,
+        height=const.HEIGHT,
         class_="banner_background",
     )
 
@@ -128,8 +100,8 @@ def element_title() -> svg.G:
         font_size=200,
         text_anchor="middle",
         class_="title",
-        x=CENTERX,
-        y=CENTERY + 60,
+        x=const.CENTERX,
+        y=const.CENTERY + 60,
     )
     title_back = svg.Text(
         text="Hello!",
@@ -137,8 +109,8 @@ def element_title() -> svg.G:
         font_size=200,
         text_anchor="middle",
         class_="title_back",
-        x=CENTERX,
-        y=CENTERY + 60,
+        x=const.CENTERX,
+        y=const.CENTERY + 60,
     )
     splat_01 = svg.G(
         transform=[
@@ -169,8 +141,8 @@ def element_button_hint() -> svg.G:
     arrow = svg.G(
         text=load_in_svg_component_from_file("arrow_01"),
         transform=[
-            svg.Rotate(5, 20, HEIGHT - 100),
-            svg.Translate(30, HEIGHT - 50),
+            svg.Rotate(5, 20, const.HEIGHT - 100),
+            svg.Translate(30, const.HEIGHT - 50),
             svg.Scale(1.5, 1.5),
         ],
     )
@@ -180,8 +152,8 @@ def element_button_hint() -> svg.G:
         font_size=32,
         class_="hint",
         x=45,
-        y=HEIGHT - 50,
-        transform=svg.Rotate(5, 20, HEIGHT - 100),
+        y=const.HEIGHT - 50,
+        transform=svg.Rotate(5, 20, const.HEIGHT - 100),
     )
 
     return svg.G(
@@ -199,7 +171,7 @@ def element_encoded_fonts() -> str:
     """
 
     encoded_fonts = []
-    for font in FONT_FOLDER.iterdir():
+    for font in const.FONT_FOLDER.iterdir():
         with open(font, "r", encoding="UTF-8") as f:
             encoded_fonts.append(f.read())
 
@@ -207,7 +179,7 @@ def element_encoded_fonts() -> str:
 
 
 def element_color_switcher() -> str:
-    preset_color_classes = "\n".join([str(preset) for preset in COLOR_PRESETS])
+    preset_color_classes = "\n".join([str(preset) for preset in const.COLOR_PRESETS])
     global_trigger = ":root {color-scheme: light dark;}\n"
     return global_trigger + preset_color_classes
 
@@ -216,8 +188,8 @@ def element_inclusionzones() -> list[SafeZone]:
     sz_01 = SafeZoneRect(
         x=0,
         y=0,
-        width=WIDTH,
-        height=HEIGHT,
+        width=const.WIDTH,
+        height=const.HEIGHT,
     )
 
     return [sz_01]
@@ -225,16 +197,16 @@ def element_inclusionzones() -> list[SafeZone]:
 
 def element_exclusionzones() -> list[SafeZone]:
     sz_01 = SafeZoneCircle(cx=-0, cy=-110, r=240)
-    sz_02 = SafeZoneCircle(cx=105, cy=HEIGHT + 30, r=140)
-    sz_03 = SafeZoneCircle(cx=440, cy=HEIGHT + 30, r=140)
-    sz_04 = SafeZoneCircle(cx=WIDTH - 340, cy=HEIGHT - 10, r=60)
-    sz_05 = SafeZoneCircle(cx=WIDTH, cy=HEIGHT + 180, r=300)
-    sz_06 = SafeZoneCircle(cx=WIDTH, cy=-110, r=270)
+    sz_02 = SafeZoneCircle(cx=105, cy=const.HEIGHT + 30, r=140)
+    sz_03 = SafeZoneCircle(cx=440, cy=const.HEIGHT + 30, r=140)
+    sz_04 = SafeZoneCircle(cx=const.WIDTH - 340, cy=const.HEIGHT - 10, r=60)
+    sz_05 = SafeZoneCircle(cx=const.WIDTH, cy=const.HEIGHT + 180, r=300)
+    sz_06 = SafeZoneCircle(cx=const.WIDTH, cy=-110, r=270)
 
     title_bb = (540, 220)
     sz_title = SafeZoneRect(
-        x=CENTERX - (title_bb[0] / 2),
-        y=CENTERY - (title_bb[1] / 2),
+        x=const.CENTERX - (title_bb[0] / 2),
+        y=const.CENTERY - (title_bb[1] / 2),
         width=title_bb[0],
         height=title_bb[1],
     )
@@ -264,31 +236,22 @@ def check_bbox_allowed(bbox) -> bool:
     return True
 
 
-def make_tag(text: str) -> TextBounded:
-    picked_font = random.choice(FONTS)
+def make_tag(text: str) -> Tag:
+    picked_font = random.choice(const.FONTS)
+    location_x = random.randrange(0, const.WIDTH)
+    location_y = random.randrange(0, const.HEIGHT)
+    color_preset = random.choice(const.TAG_COLOR_PRESETS)
 
-    location_x = random.randrange(0, WIDTH)
-    location_y = random.randrange(0, HEIGHT)
-
-    rotation = random.randrange(-15, 15)
-    # TODO: fix rotation bb calculation
-    # https://www.cs.usfca.edu/~galles/visualization/RotateTranslate2D.html
-    # rotation = 0
-
-    color_preset = random.choice(TAG_COLOR_PRESETS)
-    font_size = max(64 - (len(text) * 2.5), 24)
-    return TextBounded(
+    return build_tag(
         text=text,
         x=location_x,
         y=location_y,
-        rotation=rotation,
         font=picked_font,
-        font_size=font_size,
         color_class=color_preset.name,
     )
 
 
-def element_tag(name: str) -> svg.Element:
+def element_tag(name: str) -> svg.G:
     tag = make_tag(name)
     invalid_location = True
     while invalid_location:
@@ -298,71 +261,42 @@ def element_tag(name: str) -> svg.Element:
 
         invalid_location = False
 
-    return svg.G(
-        elements=[
-            tag.element_text,
-            # tag.element_bbox,
-        ]
-    )
+    return tag.element_group
 
 
-def minidom_to_tag(minidom_element: minidom.Element) -> TextBounded:
-    font_family = minidom_element.getAttribute("font-family")
-    font = [font for font in FONTS if font.name == font_family][0]
-
-    transform = minidom_element.getAttribute("transform")
-    rotation_degrees = transform.split("(")[1].split(" ")[0]
-
-    return TextBounded(
-        text=minidom_element.firstChild.nodeValue,
-        x=int(minidom_element.getAttribute("x")),
-        y=int(minidom_element.getAttribute("y")),
-        rotation=int(rotation_degrees),
-        font=font,
-        font_size=int(float(minidom_element.getAttribute("font-size"))),
-        color_class=minidom_element.getAttribute("class"),
-    )
-
-
-def get_existing_tags() -> list[TextBounded]:
-    if not OUTPUT_FILE.exists():
+def get_existing_tags() -> list[svg.G]:
+    if not const.OUTPUT_FILE.exists():
         return []
 
-    with open(OUTPUT_FILE, "r", encoding="UTF-8") as svg_file:
-        doc = minidom.parse(svg_file)
+    with open(const.OUTPUT_FILE, "r", encoding="UTF-8") as f:
+        doc: minidom.Document = minidom.parse(f)
 
-    elements_text: list[minidom.Element] = [
-        path for path in doc.getElementsByTagName("text")
-    ]
-
-    tag_groups: list[svg.G] = list()
-    for e in elements_text:
-        if e.getAttribute("id") != "tag":
+    tag_groups: list[minidom.Element] = list()
+    groups: list[minidom.Element] = doc.getElementsByTagName("g")
+    for element in groups:
+        if element.getAttribute("id") != "tag":
             continue
 
-        tag = minidom_to_tag(e)
-        tag_groups.append(
-            svg.G(
-                elements=[
-                    tag.element_text,
-                    # tag.element_bbox,
-                ]
-            )
-        )
+        try:
+            tag = build_tag_from_minidom(element)
+            tag_groups.append(tag.element_group)
+        except IndexError:
+            print("malformed tag svg group, skipping...")
+            continue
 
     return tag_groups
 
 
 def add_tag(text: str) -> svg.SVG:
-    tags = [element_tag(random_name()) for i in range(50)]
+    # tags = [element_tag(random_name()) for i in range(10)]
 
     result = svg.SVG(
         overflow="hidden",
         viewBox=svg.ViewBoxSpec(
             0,
             0,
-            WIDTH,
-            HEIGHT,
+            const.WIDTH,
+            const.HEIGHT,
         ),
         elements=[
             element_background(),
@@ -378,5 +312,5 @@ def add_tag(text: str) -> svg.SVG:
         ],
     )
 
-    with open(OUTPUT_FILE, "w") as f:
+    with open(const.OUTPUT_FILE, "w") as f:
         f.write(result.as_str())

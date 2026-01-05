@@ -109,8 +109,8 @@ def build_tag(
 
 
 def build_tag_from_minidom(element: minidom.Element) -> Tag:
-    path = [e for e in element.childNodes if e.tagName == "path"][0]
-    textpath = [e.childNodes[0] for e in element.childNodes if e.tagName == "text"][0]
+    path = element.getElementsByTagName("path")[0]
+    textpath = element.getElementsByTagName("textPath")[0]
 
     text = textpath.firstChild.nodeValue
     font_size = int(float(textpath.getAttribute("font-size")))

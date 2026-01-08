@@ -1,13 +1,13 @@
-from pathlib import Path
-import string
 import random
+import string
+from pathlib import Path
 from xml.dom import minidom
 
 import svg
 
 from taggablebanner.svgutils.safezones import SafeZone
 from taggablebanner.svgutils.safezones import SafeZoneCircle
-from taggablebanner.svgutils.safezones import SafeZoneRect
+from taggablebanner.svgutils.safezones import SafeZoneSquare
 
 from taggablebanner.svgutils.tag import Tag
 from taggablebanner.svgutils.tag import build_tag
@@ -185,14 +185,16 @@ def element_color_switcher() -> str:
 
 
 def element_inclusionzones() -> list[SafeZone]:
-    sz_01 = SafeZoneRect(
-        x=0,
-        y=0,
-        width=const.WIDTH,
-        height=const.HEIGHT,
-    )
-
-    return [sz_01]
+    # TODO: find a new method
+    # sz_01 = SafeZoneSquare(
+    #     x=0,
+    #     y=0,
+    #     width=const.WIDTH,
+    #     height=const.HEIGHT,
+    # )
+    #
+    # return [sz_01]
+    return []
 
 
 def element_exclusionzones() -> list[SafeZone]:
@@ -203,12 +205,21 @@ def element_exclusionzones() -> list[SafeZone]:
     sz_05 = SafeZoneCircle(cx=const.WIDTH, cy=const.HEIGHT + 180, r=300)
     sz_06 = SafeZoneCircle(cx=const.WIDTH, cy=-110, r=270)
 
-    title_bb = (540, 220)
-    sz_title = SafeZoneRect(
-        x=const.CENTERX - (title_bb[0] / 2),
-        y=const.CENTERY - (title_bb[1] / 2),
-        width=title_bb[0],
-        height=title_bb[1],
+    title_height = 200
+    sz_title_01 = SafeZoneSquare(
+        x=const.CENTERX - (title_height / 2) - title_height,
+        y=const.CENTERY - (title_height / 2),
+        width=title_height,
+    )
+    sz_title_02 = SafeZoneSquare(
+        x=const.CENTERX - (title_height / 2),
+        y=const.CENTERY - (title_height / 2),
+        width=title_height,
+    )
+    sz_title_03 = SafeZoneSquare(
+        x=const.CENTERX - (title_height / 2) + title_height,
+        y=const.CENTERY - (title_height / 2),
+        width=title_height,
     )
 
     return [
@@ -218,21 +229,25 @@ def element_exclusionzones() -> list[SafeZone]:
         sz_04,
         sz_05,
         sz_06,
-        sz_title,
+        sz_title_01,
+        sz_title_02,
+        sz_title_03,
     ]
 
 
 def check_bbox_allowed(bbox) -> bool:
     for zone in element_exclusionzones():
-        for point in bbox.points_bbox:
+        for point in bbox.points_bbox_transformed:
             if zone.check_if_point_in(point[0], point[1]):
                 return False
 
-    for zone in element_inclusionzones():
-        for point in bbox.points_bbox:
-            if not zone.check_if_point_in(point[0], point[1]):
-                return False
+    # for zone in element_inclusionzones():
+    #     # for point in bbox.points_bbox:
+    #     for point in bbox.points_bbox_transformed:
+    #         if not zone.check_if_point_in(point[0], point[1]):
+    #             return False
 
+    print("all points out -> OK")
     return True
 
 
@@ -251,17 +266,20 @@ def make_tag(text: str) -> Tag:
     )
 
 
-def element_tag(name: str) -> svg.G:
+def element_tag(name: str) -> Tag:
     tag = make_tag(name)
-    invalid_location = True
-    while invalid_location:
-        if not check_bbox_allowed(tag):
-            tag = make_tag(name)
-            continue
+    print(f"making tag: {name=}")
+    print(f"testing {tag.element_bbox.x=}, {tag.element_bbox.y=}")
+    while not check_bbox_allowed(tag):
+        tag = make_tag(name)
+        print(f"testing {tag.element_bbox.x=}, {tag.element_bbox.y=}")
+        print("bbox not allowed")
 
-        invalid_location = False
-
-    return tag.element_group
+    print(f"ok {tag.element_bbox.x=}, {tag.element_bbox.y=}")
+    # breakpoint()
+    print("allowed!")
+    print("---" * 10)
+    return tag
 
 
 def get_existing_tags() -> list[svg.G]:
@@ -287,8 +305,63 @@ def get_existing_tags() -> list[svg.G]:
     return tag_groups
 
 
+def visualize_tag_bb(tag: Tag) -> svg.G:
+    element_corners_transformed: list(svg.Circle) = list()
+    for corner in tag.points_bbox_transformed:
+        element_corners_transformed.append(
+            svg.Circle(
+                cx=corner[0],
+                cy=corner[1],
+                r=5,
+                fill="yellow",
+            )
+        )
+
+    element_corners_og: list(svg.Circle) = list()
+    for corner in tag.points_bbox:
+        element_corners_og.append(
+            svg.Circle(
+                cx=corner[0],
+                cy=corner[1],
+                r=5,
+                fill="green",
+            )
+        )
+
+    transform_matrix = tag._calculate_transform_matrix()
+    element_bbox = svg.Rect(
+        x=tag.element_path.transform[0].x,
+        y=tag.element_path.transform[0].y,
+        width=tag.element_bbox.width,
+        height=tag.element_bbox.height,
+        transform=[
+            svg.Matrix(
+                transform_matrix[0][0],
+                transform_matrix[1][0],
+                transform_matrix[0][1],
+                transform_matrix[1][1],
+                transform_matrix[0][2],
+                transform_matrix[1][2],
+            ),
+            svg.Translate(0, -tag.element_bbox.height),
+        ],
+    )
+
+    return svg.G(
+        elements=[
+            element_corners_og,
+            element_corners_transformed,
+            element_bbox,
+        ]
+    )
+
+
 def add_tag(text: str) -> svg.SVG:
-    # tags = [element_tag(random_name()) for i in range(10)]
+    tags = [element_tag(random_name()) for i in range(3)]
+    element_tags = [t.element_group for t in tags]
+    bboxes = [visualize_tag_bb(e) for e in tags]
+
+    center = svg.Circle(cx=const.CENTERX, cy=const.CENTERY, r=5, fill="white")
 
     result = svg.SVG(
         overflow="hidden",
@@ -300,17 +373,24 @@ def add_tag(text: str) -> svg.SVG:
         ),
         elements=[
             element_background(),
-            get_existing_tags(),
-            # *tags,
-            element_tag(text),
-            element_title(),
+            # get_existing_tags(),
+            *element_tags,
+            # *bboxes,
+            # element_tag(text),
+            # element_title(),
             element_button_hint(),
-            # svg.G(elements=[sz.element for sz in element_exclusionzones()]),
+            svg.G(elements=[sz.element for sz in element_exclusionzones()]),
             # svg.G(elements=[sz.element for sz in element_inclusionzones()]),
             svg.Style(text=element_encoded_fonts()),
             svg.Style(text=element_color_switcher()),
+            center,
         ],
     )
 
     with open(const.OUTPUT_FILE, "w") as f:
         f.write(result.as_str())
+
+
+if __name__ == "__main__":
+    add_tag("Bertaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    print("done")

@@ -16,10 +16,10 @@ class SafeZoneCircle(SafeZone):
 
     def check_if_point_in(self, x, y):
         distance = math.dist((self.cx, self.cy), (x, y))
-        if distance >= self.r:
-            return False
+        if distance <= self.r:
+            return True
 
-        return True
+        return False
 
     @property
     def element(self) -> svg.Circle:
@@ -31,28 +31,32 @@ class SafeZoneCircle(SafeZone):
         )
 
 
-class SafeZoneRect(SafeZone):
-    def __init__(self, x: int, y: int, width: int, height: int):
+class SafeZoneSquare(SafeZone):
+    def __init__(self, x: int, y: int, width):
         self.x = x
         self.y = y
         self.width = width
-        self.height = height
         self.fill = "rgb(255,0,0,0.2)"
 
     def check_if_point_in(self, x, y):
-        if x < self.x:
-            return False
+        corners = (
+            (self.x, self.y),
+            (self.x + self.width, self.y),
+            (self.x + self.width, self.y + self.width),
+            (self.x, self.y + self.width),
+        )
 
-        if x > self.x + self.width:
-            return False
+        buffer = 20
+        count = 0
+        for corner in corners:
+            distance = math.dist((corner[0], corner[1]), (x, y)) - buffer
+            if distance <= self.width:
+                count += 1
 
-        if y < self.y:
-            return False
+        if count >= 3:
+            return True
 
-        if y > self.y + self.height:
-            return False
-
-        return True
+        return False
 
     @property
     def element(self) -> svg.Rect:
@@ -60,6 +64,6 @@ class SafeZoneRect(SafeZone):
             x=self.x,
             y=self.y,
             width=self.width,
-            height=self.height,
+            height=self.width,
             fill=self.fill,
         )

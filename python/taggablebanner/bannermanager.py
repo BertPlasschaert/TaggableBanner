@@ -8,6 +8,7 @@ import svg
 from taggablebanner.svgutils.safezones import SafeZone
 from taggablebanner.svgutils.safezones import SafeZoneCircle
 from taggablebanner.svgutils.safezones import SafeZoneSquare
+from taggablebanner.svgutils.safezones import CanvasZone
 
 from taggablebanner.svgutils.tag import Tag
 from taggablebanner.svgutils.tag import build_tag
@@ -241,13 +242,12 @@ def check_bbox_allowed(bbox) -> bool:
             if zone.check_if_point_in(point[0], point[1]):
                 return False
 
-    # for zone in element_inclusionzones():
-    #     # for point in bbox.points_bbox:
-    #     for point in bbox.points_bbox_transformed:
-    #         if not zone.check_if_point_in(point[0], point[1]):
-    #             return False
+    # check if tag is fully in the canvas
+    canvas_zone = CanvasZone(0, 0, const.WIDTH, const.HEIGHT)
+    for point in bbox.points_bbox_transformed:
+        if not canvas_zone.check_if_point_in(point[0], point[1]):
+            return False
 
-    print("all points out -> OK")
     return True
 
 

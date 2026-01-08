@@ -67,3 +67,37 @@ class SafeZoneSquare(SafeZone):
             height=self.width,
             fill=self.fill,
         )
+
+
+class CanvasZone(SafeZone):
+    def __init__(self, x: int, y: int, width: int, height: int):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.fill = "rgb(0,255,0,0.2)"
+
+    def check_if_point_in(self, x, y):
+        if x < self.x:
+            return False
+
+        if x > self.x + self.width:
+            return False
+
+        if y < self.y:
+            return False
+
+        if y > self.y + self.height:
+            return False
+
+        return True
+
+    @property
+    def element(self) -> svg.Rect:
+        return svg.Rect(
+            x=self.x,
+            y=self.y,
+            width=self.width,
+            height=self.height,
+            fill=self.fill,
+        )

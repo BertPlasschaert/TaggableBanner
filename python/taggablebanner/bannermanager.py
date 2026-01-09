@@ -185,19 +185,6 @@ def element_color_switcher() -> str:
     return global_trigger + preset_color_classes
 
 
-def element_inclusionzones() -> list[SafeZone]:
-    # TODO: find a new method
-    # sz_01 = SafeZoneSquare(
-    #     x=0,
-    #     y=0,
-    #     width=const.WIDTH,
-    #     height=const.HEIGHT,
-    # )
-    #
-    # return [sz_01]
-    return []
-
-
 def element_exclusionzones() -> list[SafeZone]:
     sz_01 = SafeZoneCircle(cx=-0, cy=-110, r=240)
     sz_02 = SafeZoneCircle(cx=105, cy=const.HEIGHT + 30, r=140)
@@ -208,18 +195,18 @@ def element_exclusionzones() -> list[SafeZone]:
 
     title_height = 200
     sz_title_01 = SafeZoneSquare(
-        x=const.CENTERX - (title_height / 2) - title_height,
-        y=const.CENTERY - (title_height / 2),
+        x=round(const.CENTERX - (title_height / 2) - title_height),
+        y=round(const.CENTERY - (title_height / 2)),
         width=title_height,
     )
     sz_title_02 = SafeZoneSquare(
-        x=const.CENTERX - (title_height / 2),
-        y=const.CENTERY - (title_height / 2),
+        x=round(const.CENTERX - (title_height / 2)),
+        y=round(const.CENTERY - (title_height / 2)),
         width=title_height,
     )
     sz_title_03 = SafeZoneSquare(
-        x=const.CENTERX - (title_height / 2) + title_height,
-        y=const.CENTERY - (title_height / 2),
+        x=round(const.CENTERX - (title_height / 2) + title_height),
+        y=round(const.CENTERY - (title_height / 2)),
         width=title_height,
     )
 
@@ -238,13 +225,13 @@ def element_exclusionzones() -> list[SafeZone]:
 
 def check_bbox_allowed(bbox) -> bool:
     for zone in element_exclusionzones():
-        for point in bbox.points_bbox_transformed:
+        for point in bbox.bbox_points_transformed:
             if zone.check_if_point_in(point[0], point[1]):
                 return False
 
     # check if tag is fully in the canvas
     canvas_zone = CanvasZone(0, 0, const.WIDTH, const.HEIGHT)
-    for point in bbox.points_bbox_transformed:
+    for point in bbox.bbox_points_transformed:
         if not canvas_zone.check_if_point_in(point[0], point[1]):
             return False
 
@@ -268,17 +255,9 @@ def make_tag(text: str) -> Tag:
 
 def element_tag(name: str) -> Tag:
     tag = make_tag(name)
-    print(f"making tag: {name=}")
-    print(f"testing {tag.element_bbox.x=}, {tag.element_bbox.y=}")
     while not check_bbox_allowed(tag):
         tag = make_tag(name)
-        print(f"testing {tag.element_bbox.x=}, {tag.element_bbox.y=}")
-        print("bbox not allowed")
 
-    print(f"ok {tag.element_bbox.x=}, {tag.element_bbox.y=}")
-    # breakpoint()
-    print("allowed!")
-    print("---" * 10)
     return tag
 
 
@@ -307,7 +286,7 @@ def get_existing_tags() -> list[svg.G]:
 
 def visualize_tag_bb(tag: Tag) -> svg.G:
     element_corners_transformed: list(svg.Circle) = list()
-    for corner in tag.points_bbox_transformed:
+    for corner in tag.bbox_points_transformed:
         element_corners_transformed.append(
             svg.Circle(
                 cx=corner[0],
@@ -318,7 +297,7 @@ def visualize_tag_bb(tag: Tag) -> svg.G:
         )
 
     element_corners_og: list(svg.Circle) = list()
-    for corner in tag.points_bbox:
+    for corner in tag._points_bbox():
         element_corners_og.append(
             svg.Circle(
                 cx=corner[0],
@@ -328,7 +307,7 @@ def visualize_tag_bb(tag: Tag) -> svg.G:
             )
         )
 
-    transform_matrix = tag._calculate_transform_matrix()
+    transform_matrix = tag._bbox_transform_matrix()
     element_bbox = svg.Rect(
         x=tag.element_path.transform[0].x,
         y=tag.element_path.transform[0].y,
@@ -351,17 +330,18 @@ def visualize_tag_bb(tag: Tag) -> svg.G:
         elements=[
             element_corners_og,
             element_corners_transformed,
-            element_bbox,
+            # element_bbox,
         ]
     )
 
 
 def add_tag(text: str) -> svg.SVG:
-    tags = [element_tag(random_name()) for i in range(3)]
+    tags = [element_tag(random_name()) for i in range(30)]
     element_tags = [t.element_group for t in tags]
-    bboxes = [visualize_tag_bb(e) for e in tags]
+    # bboxes = [visualize_tag_bb(e) for e in tags]
 
-    center = svg.Circle(cx=const.CENTERX, cy=const.CENTERY, r=5, fill="white")
+    bbox_og = [t.bbox_points_element for t in tags]
+    bbox_transformed = [t.bbox_points_transformed_element for t in tags]
 
     result = svg.SVG(
         overflow="hidden",
@@ -375,15 +355,14 @@ def add_tag(text: str) -> svg.SVG:
             element_background(),
             # get_existing_tags(),
             *element_tags,
-            # *bboxes,
+            *bbox_og,
+            *bbox_transformed,
             # element_tag(text),
-            # element_title(),
+            element_title(),
             element_button_hint(),
-            svg.G(elements=[sz.element for sz in element_exclusionzones()]),
-            # svg.G(elements=[sz.element for sz in element_inclusionzones()]),
+            # svg.G(elements=[sz.element for sz in element_exclusionzones()]),
             svg.Style(text=element_encoded_fonts()),
             svg.Style(text=element_color_switcher()),
-            center,
         ],
     )
 
@@ -392,5 +371,5 @@ def add_tag(text: str) -> svg.SVG:
 
 
 if __name__ == "__main__":
-    add_tag("Bertaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    add_tag("Bert")
     print("done")

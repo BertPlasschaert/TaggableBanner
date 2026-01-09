@@ -3,7 +3,6 @@ from xml.dom import minidom
 import random
 import math
 
-
 import svg
 
 from taggablebanner.svgutils.fontbb import FontBB
@@ -16,38 +15,26 @@ class Tag:
     element_path: svg.Path
     element_bbox: svg.Rect
 
-    @property
-    def element_group(self) -> svg.G:
-        return svg.G(
-            id="tag",
-            elements=[
-                self.element_bbox,  # un-comment when you want to visualize the bbox
-                self.element_path,
-                svg.Text(elements=[self.element_text_path]),
-            ],
-        )
-
-    @property
-    def points_bbox(self) -> tuple[tuple[int, int]]:
-        "All bbox corner points clockwise"
-        return (
-            (self.element_bbox.x, self.element_bbox.y),
-            (self.element_bbox.x + self.element_bbox.width, self.element_bbox.y),
-            (
+    def _bbox_points(self) -> list[list[float]]:
+        "All bbox corner points clockwise and center point"
+        return [
+            [self.element_bbox.x, self.element_bbox.y],
+            [self.element_bbox.x + self.element_bbox.width, self.element_bbox.y],
+            [
                 self.element_bbox.x + self.element_bbox.width,
                 self.element_bbox.y + self.element_bbox.height,
-            ),
-            (self.element_bbox.x, self.element_bbox.y + self.element_bbox.height),
-            # added center point
-            (
+            ],
+            [self.element_bbox.x, self.element_bbox.y + self.element_bbox.height],
+            # center point
+            [
                 self.element_bbox.x + self.element_bbox.width / 2,
                 self.element_bbox.y + self.element_bbox.height / 2,
-            ),
-        )
+            ],
+        ]
 
-    def _calculate_transform_matrix(self) -> list[list[float]]:
-        px = self.element_path.transform[0].x
-        py = self.element_path.transform[0].y
+    def _bbox_transform_matrix(self) -> list[list[float]]:
+        px = self.element_bbox.x
+        py = self.element_bbox.y - self.element_bbox.height
 
         m_undo_translation = [
             [1, 0, -px],
@@ -73,44 +60,83 @@ class Tag:
             [0, 0, 1],
         ]
 
-        transform_matrix = self.multiply_matrix(
-            self.multiply_matrix(m_redo_translation, m_rotation),
+        transform_matrix = multiply_matrix(
+            multiply_matrix(m_redo_translation, m_rotation),
             m_undo_translation,
         )
 
-        # return m_rotation
         return transform_matrix
 
     @property
-    def points_bbox_transformed(self) -> list[list[int]]:
-        points = self.points_bbox
-        transform_matrix = self._calculate_transform_matrix()
+    def element_group(self) -> svg.G:
+        return svg.G(
+            id="tag",
+            elements=[
+                # self.element_bbox,  # un-comment when you want to visualize the bbox
+                self.element_path,
+                svg.Text(elements=[self.element_text_path]),
+            ],
+        )
 
-        transformed_points: list[list[int]] = list()
-        for point in points:
+    @property
+    def bbox_points_transformed(self) -> list[list[float]]:
+        transform_matrix = self._bbox_transform_matrix()
+        transformed_points: list[list[float]] = list()
+        for point in self._bbox_points():
             input_matrix = [
                 [1, 0, point[0]],
                 [0, 1, point[1]],
                 [0, 0, 1],
             ]
 
-            result_matrix = self.multiply_matrix(transform_matrix, input_matrix)
+            result_matrix = multiply_matrix(transform_matrix, input_matrix)
             transformed_points.append([result_matrix[0][2], result_matrix[1][2]])
 
         return transformed_points
 
-    def multiply_matrix(self, m1, m2) -> list[list[int]]:
-        dimension = len(m1)
+    @property
+    def bbox_points_element(self) -> svg.G:
+        elements: list(svg.Circle) = list()
+        for corner in self._bbox_points():
+            elements.append(
+                svg.Circle(
+                    cx=corner[0],
+                    cy=corner[1],
+                    r=5,
+                    fill="green",
+                )
+            )
 
-        matrix_result = [[0] * dimension for i in range(dimension)]
-        for row in range(dimension):
-            for column in range(dimension):
-                intermediate_cell = list()
-                for i in range(dimension):
-                    intermediate_cell.append((m1[row][i] * m2[i][column]))
-                matrix_result[row][column] = sum(intermediate_cell)
+        return svg.G(elements=elements)
 
-        return matrix_result
+    @property
+    def bbox_points_transformed_element(self) -> svg.G:
+        elements: list(svg.Circle) = list()
+        for corner in self.bbox_points_transformed:
+            elements.append(
+                svg.Circle(
+                    cx=corner[0],
+                    cy=corner[1],
+                    r=5,
+                    fill="yellow",
+                )
+            )
+
+        return svg.G(elements=elements)
+
+
+def multiply_matrix(m1, m2) -> list[list[float]]:
+    dimension = len(m1)
+
+    matrix_result = [[0] * dimension for i in range(dimension)]
+    for row in range(dimension):
+        for column in range(dimension):
+            intermediate_cell = list()
+            for i in range(dimension):
+                intermediate_cell.append((m1[row][i] * m2[i][column]))
+            matrix_result[row][column] = sum(intermediate_cell)
+
+    return matrix_result
 
 
 def build_tag(
@@ -123,8 +149,8 @@ def build_tag(
     font_size = max(64 - (len(text) * 2.5), 32)
 
     width = (font_size * font.width_size_ratio) * len(text) * 1.1
-    height = font_size * font.height_size_ratio
     rotation = random.randrange(-15, 15)
+    height = font_size * font.height_size_ratio
 
     # bbox
     element_bbox = svg.Rect(
@@ -156,7 +182,6 @@ def build_tag(
 
     element_path = svg.Path(
         id=f"path-{text}",
-        # stroke="white",
         fill="transparent",
         d=[
             svg.M(

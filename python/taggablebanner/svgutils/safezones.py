@@ -4,7 +4,10 @@ import svg
 
 
 class SafeZone:
-    pass
+    def check_if_point_in(self, x, y): ...
+
+    @property
+    def element(self) -> svg.Circle: ...
 
 
 class SafeZoneCircle(SafeZone):

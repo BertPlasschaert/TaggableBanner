@@ -1,12 +1,10 @@
+# stdlib modules
 import argparse
 
+# tool modules
 from taggablebanner import main
 
-parser = argparse.ArgumentParser(
-    prog="Tagable Banner",
-    description="Check if username is allowed",
-)
-
+parser = argparse.ArgumentParser(prog="Taggable Banner")
 subparsers = parser.add_subparsers(dest="action")
 
 parser_check = subparsers.add_parser("check", help="Check if name is already used")

@@ -1,25 +1,29 @@
+# stdlib modules
 import datetime
 from pathlib import Path
 
-START_MARKER = "<!--begin usernames-->\n"
-END_MARKER = "<!--end usernames-->\n"
-
-MD_FILE = Path("README.md")
+# tool modules
+from taggablebanner.const import MD_FILE
+from taggablebanner.const import MD_START_MARKER
+from taggablebanner.const import MD_END_MARKER
 
 
 def _get_md_lines(file_path: Path) -> list[str]:
+    """Read all lines of the provided file path."""
     with open(file_path) as f:
         return f.readlines()
 
 
 def _get_name_lines(lines: list[str]) -> list[str]:
-    start_index: int = lines.index(START_MARKER) + 1
-    end_index: int = lines.index(END_MARKER)
+    """Filter out all the name lines from the provided list of lines."""
+    start_index: int = lines.index(MD_START_MARKER) + 1
+    end_index: int = lines.index(MD_END_MARKER)
 
     return lines[start_index:end_index]
 
 
 def _extract_names(lines: list[str]) -> list[str]:
+    """Filter out all the usernames from the provided list of name lines."""
     names: list[str] = list()
     for line in lines:
         try:
@@ -31,14 +35,16 @@ def _extract_names(lines: list[str]) -> list[str]:
 
 
 def get_names() -> list[str]:
+    """Get username from markdown file."""
     lines = _get_md_lines(MD_FILE)
     name_lines = _get_name_lines(lines)
     return _extract_names(name_lines)
 
 
 def add_name(name: str) -> None:
+    """Add provided username to markdown file."""
     md_lines = _get_md_lines(MD_FILE)
-    end_index = md_lines.index(END_MARKER)
+    end_index = md_lines.index(MD_END_MARKER)
     date = datetime.datetime.now().strftime("%d/%m/%Y")
     md_lines.insert(end_index, f"###### [{name}] on {date}\n")
 

@@ -1,10 +1,13 @@
+# stdlib modules
 from dataclasses import dataclass
 from xml.dom import minidom
 import random
 import math
 
+# thirdparty modules
 import svg
 
+# tool modules
 from taggablebanner.svgutils.fontbb import FontBB
 from taggablebanner.const import FONTS
 
@@ -16,7 +19,12 @@ class Tag:
     element_bbox: svg.Rect
 
     def _bbox_points(self) -> list[list[float]]:
-        "All bbox corner points clockwise and center point"
+        """
+        All bbox corner points and center point, without rotation.
+
+        These points represent the boundingbox of the tag, but without the
+        random rotation applied.
+        """
         return [
             [self.element_bbox.x, self.element_bbox.y],
             [self.element_bbox.x + self.element_bbox.width, self.element_bbox.y],
@@ -33,6 +41,7 @@ class Tag:
         ]
 
     def _bbox_transform_matrix(self) -> list[list[float]]:
+        """Calculate the transformation matrix from the tags' generated elements."""
         px = self.element_bbox.x
         py = self.element_bbox.y - self.element_bbox.height
 
@@ -69,6 +78,7 @@ class Tag:
 
     @property
     def element_group(self) -> svg.G:
+        """Group svg element with the path and text element."""
         return svg.G(
             id="tag",
             elements=[
@@ -80,6 +90,12 @@ class Tag:
 
     @property
     def bbox_points_transformed(self) -> list[list[float]]:
+        """
+        All bbox corner points and center point, with rotation applied.
+
+        These points represent the boundingbox of the tag, with the random
+        rotation applied.
+        """
         transform_matrix = self._bbox_transform_matrix()
         transformed_points: list[list[float]] = list()
         for point in self._bbox_points():
@@ -96,7 +112,8 @@ class Tag:
 
     @property
     def bbox_points_element(self) -> svg.G:
-        elements: list(svg.Circle) = list()
+        """Bbox points visualizer svg element without the rotation applied."""
+        elements: list[svg.Circle] = list()
         for corner in self._bbox_points():
             elements.append(
                 svg.Circle(
@@ -111,7 +128,8 @@ class Tag:
 
     @property
     def bbox_points_transformed_element(self) -> svg.G:
-        elements: list(svg.Circle) = list()
+        """Bbox points visualizer svg element with the rotation applied."""
+        elements: list[svg.Circle] = list()
         for corner in self.bbox_points_transformed:
             elements.append(
                 svg.Circle(
@@ -126,6 +144,7 @@ class Tag:
 
 
 def multiply_matrix(m1, m2) -> list[list[float]]:
+    """Multiply the provided two matrix"""
     dimension = len(m1)
 
     matrix_result = [[0] * dimension for i in range(dimension)]
@@ -146,11 +165,14 @@ def build_tag(
     font: FontBB,
     color_class: str,
 ):
+    """Construct Tag object"""
     font_size = max(64 - (len(text) * 2.5), 32)
 
-    width = (font_size * font.width_size_ratio) * len(text) * 1.1
-    rotation = random.randrange(-15, 15)
+    # calculate the boundingbox dimentions using the font width/height_size ratio
+    width = (font_size * font.width_size_ratio) * len(text)
     height = font_size * font.height_size_ratio
+
+    rotation = random.randrange(-15, 15)
 
     # bbox
     element_bbox = svg.Rect(
@@ -209,6 +231,7 @@ def build_tag(
 
 
 def build_tag_from_minidom(element: minidom.Element) -> Tag:
+    """Construct Tag object from a minidom tag group element."""
     path = element.getElementsByTagName("path")[0]
     textpath = element.getElementsByTagName("textPath")[0]
 
@@ -222,7 +245,7 @@ def build_tag_from_minidom(element: minidom.Element) -> Tag:
     x = int(path.getAttribute("d").split(" ")[1])
     y = int(path.getAttribute("d").split(" ")[2])
 
-    width = (font_size * font.width_size_ratio) * len(text) * 1.1
+    width = (font_size * font.width_size_ratio) * len(text)
     height = font_size * font.height_size_ratio
 
     element_bbox = svg.Rect(

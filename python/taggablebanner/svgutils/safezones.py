@@ -1,5 +1,7 @@
+# stdlib modules
 import math
 
+# thirdparty modules
 import svg
 
 

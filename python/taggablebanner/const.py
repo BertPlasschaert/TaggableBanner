@@ -1,18 +1,24 @@
+# stdlib modules
 from pathlib import Path
 
-from svgutils.fontbb import FontBB
-from svgutils.colorpreset import ColorPreset
+# tool modules
+from taggablebanner.svgutils.fontbb import FontBB
+from taggablebanner.svgutils.colorpreset import ColorPreset
 
+BANNER_FILE = Path("banner.svg")
+MD_FILE = Path("README.md")
 SVG_PARTS_FOLDER = Path("svg_parts")
-OUTPUT_FILE = Path("banner.svg")
+
+MD_START_MARKER = "<!--begin usernames-->\n"
+MD_END_MARKER = "<!--end usernames-->\n"
+
+BANNER_WIDTH = 1500
+BANNER_HEIGHT = 500
+
+BANNER_CENTER_X = round(BANNER_WIDTH / 2)
+BANNER_CENTER_Y = round(BANNER_HEIGHT / 2)
+
 FONT_FOLDER = Path("fonts")
-
-WIDTH = 1500
-HEIGHT = 500
-
-CENTERX = round(WIDTH / 2)
-CENTERY = round(HEIGHT / 2)
-
 FONTS = [
     FontBB("graffiti youth", 0.7, 0.4),
     FontBB("graffiti city", 0.76, 0.43),

@@ -284,61 +284,9 @@ def get_existing_tags() -> list[svg.G]:
     return tag_groups
 
 
-def visualize_tag_bb(tag: Tag) -> svg.G:
-    element_corners_transformed: list(svg.Circle) = list()
-    for corner in tag.bbox_points_transformed:
-        element_corners_transformed.append(
-            svg.Circle(
-                cx=corner[0],
-                cy=corner[1],
-                r=5,
-                fill="yellow",
-            )
-        )
-
-    element_corners_og: list(svg.Circle) = list()
-    for corner in tag._points_bbox():
-        element_corners_og.append(
-            svg.Circle(
-                cx=corner[0],
-                cy=corner[1],
-                r=5,
-                fill="green",
-            )
-        )
-
-    transform_matrix = tag._bbox_transform_matrix()
-    element_bbox = svg.Rect(
-        x=tag.element_path.transform[0].x,
-        y=tag.element_path.transform[0].y,
-        width=tag.element_bbox.width,
-        height=tag.element_bbox.height,
-        transform=[
-            svg.Matrix(
-                transform_matrix[0][0],
-                transform_matrix[1][0],
-                transform_matrix[0][1],
-                transform_matrix[1][1],
-                transform_matrix[0][2],
-                transform_matrix[1][2],
-            ),
-            svg.Translate(0, -tag.element_bbox.height),
-        ],
-    )
-
-    return svg.G(
-        elements=[
-            element_corners_og,
-            element_corners_transformed,
-            # element_bbox,
-        ]
-    )
-
-
 def add_tag(text: str) -> svg.SVG:
     tags = [element_tag(random_name()) for i in range(30)]
     element_tags = [t.element_group for t in tags]
-    # bboxes = [visualize_tag_bb(e) for e in tags]
 
     bbox_og = [t.bbox_points_element for t in tags]
     bbox_transformed = [t.bbox_points_transformed_element for t in tags]
@@ -355,8 +303,8 @@ def add_tag(text: str) -> svg.SVG:
             element_background(),
             # get_existing_tags(),
             *element_tags,
-            *bbox_og,
-            *bbox_transformed,
+            # *bbox_og,
+            # *bbox_transformed,
             # element_tag(text),
             element_title(),
             element_button_hint(),

@@ -102,7 +102,7 @@ def element_title() -> svg.G:
         font_size=200,
         text_anchor="middle",
         class_="title",
-        x=const.CENTERX,
+        x=const.BANNER_CENTER_X,
         y=const.BANNER_CENTER_Y + 60,
     )
     title_back = svg.Text(

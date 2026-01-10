@@ -202,17 +202,17 @@ def element_exclusionzones() -> list[SafeZone]:
 
     title_height = 200
     sz_title_01 = SafeZoneSquare(
-        x=round(const.CENTERX - (title_height / 2) - title_height),
+        x=round(const.BANNER_CENTER_X - (title_height / 2) - title_height),
         y=round(const.BANNER_CENTER_Y - (title_height / 2)),
         width=title_height,
     )
     sz_title_02 = SafeZoneSquare(
-        x=round(const.CENTERX - (title_height / 2)),
+        x=round(const.BANNER_CENTER_X - (title_height / 2)),
         y=round(const.BANNER_CENTER_Y - (title_height / 2)),
         width=title_height,
     )
     sz_title_03 = SafeZoneSquare(
-        x=round(const.CENTERX - (title_height / 2) + title_height),
+        x=round(const.BANNER_CENTER_X - (title_height / 2) + title_height),
         y=round(const.BANNER_CENTER_Y - (title_height / 2)),
         width=title_height,
     )

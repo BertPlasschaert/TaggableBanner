@@ -46,7 +46,9 @@ def add_name(name: str) -> None:
     md_lines = _get_md_lines(MD_FILE)
     end_index = md_lines.index(MD_END_MARKER)
     date = datetime.datetime.now().strftime("%d/%m/%Y")
-    md_lines.insert(end_index, f"###### [{name}] on {date}\n")
+    md_lines.insert(
+        end_index, f"###### [{name}](https://github.com/{name}) on {date}\n"
+    )
 
     with open(MD_FILE, "w") as f:
         f.writelines(md_lines)

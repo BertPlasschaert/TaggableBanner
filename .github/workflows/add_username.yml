@@ -107,7 +107,7 @@ jobs:
 
     - name: full success comment
       if: ${{env.RESULT == 'success' }}
-      run: echo "COMMENT=Your username has been added to the banner! Thank you for your interest, go check it out at https://github.com/BertPlasschaert" >> $GITHUB_ENV
+      run: echo "COMMENT=Your username has been added to the banner! Thank you for your interest, go check it out at ${{github.server_url}}/${{github.repository}}" >> $GITHUB_ENV
 
     - name: add comment to issue
       run: gh issue comment "$NUMBER" --body "$COMMENT"

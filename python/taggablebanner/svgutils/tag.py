@@ -166,7 +166,8 @@ def build_tag(
     color_class: str,
 ):
     """Construct Tag object"""
-    font_size = max(64 - (len(text) * 2.5), 32)
+    # font_size = max(64 - (len(text) * 2.5), 32)
+    font_size = max(82 - (len(text) * 2.5), 36)
 
     # calculate the boundingbox dimentions using the font width/height_size ratio
     width = (font_size * font.width_size_ratio) * len(text)

@@ -2,31 +2,25 @@ import svg
 
 from pathlib import Path
 
-
-output_svg = Path("bbox.svg")
+output_svg = Path("text_bbox.svg")
 
 name = "BerT"
 font_size = 36
 
 
-text = svg.Text(
-    text=name,
-    font_size=font_size,
-    fill="black",
-    x=0,
-    y=font_size,
-)
-
-bbox = svg.Rect(
-    x=0,
-    y=0,
-    fill="red",
-    height=font_size,
-    width=(font_size / 2) * len(name),
-)
+draw_fonts():
+    text = svg.Text(
+        text=name,
+        font_size=font_size,
+        fill="black",
+        x=0,
+        y=font_size,
+    )
 
 
 def draw() -> svg.SVG:
+    font_elements = draw_fonts()
+
     return svg.SVG(
         overflow="hidden",
         viewBox=svg.ViewBoxSpec(
@@ -36,12 +30,11 @@ def draw() -> svg.SVG:
             500,
         ),
         elements=[
-            bbox,
-            text,
+            *font_elements,
         ],
     )
 
 
-output = draw().as_str()
-with open(output_svg, "w") as f:
-    f.write(output)
+if __name__ == "__main__":
+    with open(output_svg, "w") as f:
+        f.write(draw().as_str())

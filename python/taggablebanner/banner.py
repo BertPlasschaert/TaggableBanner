@@ -96,21 +96,43 @@ def element_background() -> svg.G:
 
 def element_title() -> svg.G:
     """Construct the title of the banner."""
+
+    gradient_l = svg.LinearGradient(
+        id="gradient-light",
+        gradientTransform=svg.Rotate(90),
+        gradientUnits="userSpaceOnUse",
+        elements=[
+            svg.Stop(offset="0%", stop_color="pink"),
+            svg.Stop(offset="100%", stop_color="green"),
+        ],
+    )
+    svg.LinearGradient
+    gradient_d = svg.LinearGradient(
+        id="gradient-dark",
+        elements=[
+            svg.Stop(offset="0%", stop_color="blue"),
+            svg.Stop(offset="100%", stop_color="yellow"),
+        ],
+    )
+
     title_front = svg.Text(
         text="Hello!",
         font_family="crysh graffiti regular",
         font_size=200,
         text_anchor="middle",
-        class_="title",
+        # class_="title",
+        class_="test",
         x=const.BANNER_CENTER_X,
         y=const.BANNER_CENTER_Y + 60,
     )
+
     title_back = svg.Text(
         text="Hello!",
         font_family="crysh graffiti extrude",
         font_size=200,
         text_anchor="middle",
-        class_="title_back",
+        class_="test",
+        # class_="title_back",
         x=const.BANNER_CENTER_X,
         y=const.BANNER_CENTER_Y + 60,
     )
@@ -131,6 +153,8 @@ def element_title() -> svg.G:
 
     return svg.G(
         elements=[
+            gradient_l,
+            gradient_d,
             splat_01,
             splat_02,
             title_back,
@@ -305,14 +329,33 @@ def get_existing_tags() -> list[Tag]:
 def add_tag(text: str) -> svg.SVG:
     """Adds a tag with the provided text to the banner."""
 
-    # def random_name():
-    #     size = random.randrange(6, 22)
-    #     chars = string.ascii_uppercase + string.digits
-    #     return "".join(random.choice(chars) for _ in range(size))
-    # tags = [element_tag(random_name()) for i in range(30)]
-    # element_tags = [t.element_group for t in tags]
-    # bbox_og = [t.bbox_points_element for t in tags]
-    # bbox_transformed = [t.bbox_points_transformed_element for t in tags]
+    import string
+
+    def random_name():
+        size = random.randrange(6, 22)
+        chars = string.ascii_uppercase + string.digits
+        return "".join(random.choice(chars) for _ in range(size))
+
+    tags = [element_tag(random_name()) for i in range(40)]
+    element_tags = [t.element_group for t in tags]
+    bbox_og = [t.bbox_points_element for t in tags]
+    bbox_transformed = [t.bbox_points_transformed_element for t in tags]
+
+    gradient_test = """
+    :root {
+      --svg-gradient: url(#gradient-light);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --svg-gradient: url(#gradient-dark);
+      }
+    }
+
+    .test {
+      fill: var(--svg-gradient);
+    }
+    """
 
     result = svg.SVG(
         overflow="hidden",
@@ -324,8 +367,8 @@ def add_tag(text: str) -> svg.SVG:
         ),
         elements=[
             element_background(),
-            *[tag.element_group for tag in get_existing_tags()],
-            # *element_tags,
+            # *[tag.element_group for tag in get_existing_tags()],
+            *element_tags,
             # *bbox_og,
             # *bbox_transformed,
             element_tag(text).element_group,
@@ -334,6 +377,8 @@ def add_tag(text: str) -> svg.SVG:
             # svg.G(elements=[sz.element for sz in element_exclusionzones()]),
             svg.Style(text=element_encoded_fonts()),
             svg.Style(text=element_color_switcher()),
+            # svg.Style(text=".test {fill:url(#front_title_gradient);}"),
+            svg.Style(text=gradient_test),
         ],
     )
 

@@ -97,31 +97,12 @@ def element_background() -> svg.G:
 def element_title() -> svg.G:
     """Construct the title of the banner."""
 
-    gradient_l = svg.LinearGradient(
-        id="gradient-light",
-        gradientTransform=svg.Rotate(90),
-        gradientUnits="userSpaceOnUse",
-        elements=[
-            svg.Stop(offset="0%", stop_color="pink"),
-            svg.Stop(offset="100%", stop_color="green"),
-        ],
-    )
-    svg.LinearGradient
-    gradient_d = svg.LinearGradient(
-        id="gradient-dark",
-        elements=[
-            svg.Stop(offset="0%", stop_color="blue"),
-            svg.Stop(offset="100%", stop_color="yellow"),
-        ],
-    )
-
     title_front = svg.Text(
         text="Hello!",
         font_family="crysh graffiti regular",
         font_size=200,
         text_anchor="middle",
-        # class_="title",
-        class_="test",
+        class_="title",
         x=const.BANNER_CENTER_X,
         y=const.BANNER_CENTER_Y + 60,
     )
@@ -131,8 +112,7 @@ def element_title() -> svg.G:
         font_family="crysh graffiti extrude",
         font_size=200,
         text_anchor="middle",
-        class_="test",
-        # class_="title_back",
+        class_="title_back",
         x=const.BANNER_CENTER_X,
         y=const.BANNER_CENTER_Y + 60,
     )
@@ -153,8 +133,6 @@ def element_title() -> svg.G:
 
     return svg.G(
         elements=[
-            gradient_l,
-            gradient_d,
             splat_01,
             splat_02,
             title_back,
@@ -209,8 +187,17 @@ def element_encoded_fonts() -> str:
 def element_color_switcher() -> str:
     """Load the color presets into a style tag."""
     preset_color_classes = "\n".join([str(preset) for preset in const.COLOR_PRESETS])
-    global_trigger = ":root {color-scheme: light dark;}\n"
-    return global_trigger + preset_color_classes
+    light_gradient_switch_values = "\n".join(
+        [preset.gradient_light for preset in const.COLOR_PRESETS]
+    )
+    dark_gradient_switch_values = "\n".join(
+        [preset.gradient_dark for preset in const.COLOR_PRESETS]
+    )
+    light_trigger = (
+        f":root {{{light_gradient_switch_values};color-scheme: light dark;}}\n"
+    )
+    dark_trigger = f"@media (prefers-color-scheme: dark) {{:root {{\n{dark_gradient_switch_values}}}}}\n"
+    return light_trigger + dark_trigger + preset_color_classes
 
 
 def element_exclusionzones() -> list[SafeZone]:
@@ -336,26 +323,10 @@ def add_tag(text: str) -> svg.SVG:
         chars = string.ascii_uppercase + string.digits
         return "".join(random.choice(chars) for _ in range(size))
 
-    tags = [element_tag(random_name()) for i in range(40)]
+    tags = [element_tag(random_name()) for i in range(50)]
     element_tags = [t.element_group for t in tags]
     bbox_og = [t.bbox_points_element for t in tags]
     bbox_transformed = [t.bbox_points_transformed_element for t in tags]
-
-    gradient_test = """
-    :root {
-      --svg-gradient: url(#gradient-light);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --svg-gradient: url(#gradient-dark);
-      }
-    }
-
-    .test {
-      fill: var(--svg-gradient);
-    }
-    """
 
     result = svg.SVG(
         overflow="hidden",
@@ -375,10 +346,11 @@ def add_tag(text: str) -> svg.SVG:
             element_title(),
             element_button_hint(),
             # svg.G(elements=[sz.element for sz in element_exclusionzones()]),
+            *[preset.gradient_elements for preset in const.COLOR_PRESETS],
             svg.Style(text=element_encoded_fonts()),
             svg.Style(text=element_color_switcher()),
             # svg.Style(text=".test {fill:url(#front_title_gradient);}"),
-            svg.Style(text=gradient_test),
+            # svg.Style(text=gradient_test),
         ],
     )
 

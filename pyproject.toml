@@ -29,5 +29,4 @@ include-package-data = true
 where = ["python"]
 
 [tool.setuptools.package-data]
-"taggablebanner" = ["resources/*"]
-"taggablebanner" = ["resources/*/*"]
+"taggablebanner" = ["resources/*", "resources/*/*"]

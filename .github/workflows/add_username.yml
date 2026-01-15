@@ -76,10 +76,6 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
-    - name: debug
-      run: echo "check status $CHECK"
-
-
     - name: failed checks comment
       if: ${{env.CHECK == 'failure'}}
       run: echo "COMMENT=Name check failed, keep in mind you can only add your username once. For more details check the action logs https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}" >> $GITHUB_ENV

@@ -27,17 +27,12 @@ jobs:
     - name: "Set up Python"
       uses: actions/setup-python@v6
       with:
-        python-version-file: "pyproject.toml"
-
-    - name: Install uv
-      uses: astral-sh/setup-uv@v7
-
-    - name: "Set PYTHONPATH"
-      run: echo "PYTHONPATH=$PWD/python" >> $GITHUB_ENV
+        python-version: '3.10'
+        pip-install: git+https://github.com/BertPlasschaert/taggable_banner@v1.0.2
 
     - id: check
       name: check if name is already used
-      run: uv run python/taggablebanner/cli.py check "$ISSUE_AUTHOR"
+      run: taggablebanner check "$ISSUE_AUTHOR"
 
 
 
@@ -54,14 +49,7 @@ jobs:
     - name: "Set up Python"
       uses: actions/setup-python@v6
       with:
-        python-version-file: "pyproject.toml"
-
-    - name: Install uv
-      uses: astral-sh/setup-uv@v7
-
-
-    - name: "Set PYTHONPATH"
-      run: echo "PYTHONPATH=$PWD/python" >> $GITHUB_ENV
+        python-version-file: "taggablebanner/pyproject.toml"
 
     - name: add tag
       run: uv run python/taggablebanner/cli.py add "$ISSUE_AUTHOR"
@@ -125,4 +113,5 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NUMBER: ${{ github.event.issue.number }}
+
 

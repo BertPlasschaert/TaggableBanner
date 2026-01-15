@@ -1,0 +1,128 @@
+name: Taggable Banner
+run-name: Add username of ${{ github.actor }} to banner
+on:
+  issues:
+    types: [opened]
+
+env:
+  ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+
+# Prevent parallel executions
+concurrency:
+  group: adding_username
+  cancel-in-progress: false
+
+jobs:
+
+  check_username:
+    name: Check username
+    runs-on: ubuntu-latest
+    if: github.event.issue.title == 'Add my username to the banner!'
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: "Set up Python"
+      uses: actions/setup-python@v6
+      with:
+        python-version-file: "pyproject.toml"
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+
+    - name: "Set PYTHONPATH"
+      run: echo "PYTHONPATH=$PWD/python" >> $GITHUB_ENV
+
+    - id: check
+      name: check if name is already used
+      run: uv run python/taggablebanner/cli.py check "$ISSUE_AUTHOR"
+
+
+
+  add_tag:
+    name: Add users' tag
+    needs: check_username
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: "Set up Python"
+      uses: actions/setup-python@v6
+      with:
+        python-version-file: "pyproject.toml"
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+
+
+    - name: "Set PYTHONPATH"
+      run: echo "PYTHONPATH=$PWD/python" >> $GITHUB_ENV
+
+    - name: add tag
+      run: uv run python/taggablebanner/cli.py add "$ISSUE_AUTHOR"
+
+    - name: commit and push updates
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git commit -m "added username: $ISSUE_AUTHOR"
+        git push
+
+
+  comment_on_issue:
+
+    name: "add comment to the triggering issue"
+    runs-on: ubuntu-latest
+    needs: [check_username, add_tag]
+    if: ${{ always() && needs.check_username.result != 'skipped'}}
+    env:
+      CHECK: ${{needs.check_username.result}}
+      RESULT: ${{needs.add_tag.result}}
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: debug
+      run: echo "check status $CHECK"
+
+
+    - name: failed checks comment
+      if: ${{env.CHECK == 'failure'}}
+      run: echo "COMMENT=Name check failed, keep in mind you can only add your username once. For more details check the action logs https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}" >> $GITHUB_ENV
+
+    - name: unexpected issue comment
+      if: ${{env.RESULT == 'failure'}}
+      run: echo "COMMENT=Unexpected issue occured when adding username. For more details check the action logs https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}" >> $GITHUB_ENV
+
+    - name: full success comment
+      if: ${{env.RESULT == 'success' }}
+      run: echo "COMMENT=Your username has been added to the banner! Thank you for your interest, go check it out at ${{github.server_url}}/${{github.repository}}" >> $GITHUB_ENV
+
+    - name: add comment to issue
+      run: gh issue comment "$NUMBER" --body "$COMMENT"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NUMBER: ${{ github.event.issue.number }}
+
+  close_issue:
+    name: "close the triggering issue"
+    needs: [add_tag, comment_on_issue]
+    if: ${{ always() && needs.check_username.result != 'skipped'}}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: close issue
+      # only keep issue open if issue occured in add_tag step
+      if: ${{ needs.add_tag.result != 'failure'}}
+      run: gh issue close "$NUMBER"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NUMBER: ${{ github.event.issue.number }}
+

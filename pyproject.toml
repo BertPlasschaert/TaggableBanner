@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "taggablebanner"
+version = "1.0.0"
+description = "Generate an interactable SVG graffiti wall."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "svg-py>=1.9.2",
+]
+authors = [
+  {name = "Bert Plasschaert", email = "bert.plasschaert@outlook.com"},
+]
+license = "MIT"
+
+[project.urls]
+Homepage = "https://github.com/BertPlasschaert/taggable_banner"
+
+[project.scripts]
+taggablebanner = "taggablebanner.cli:cli"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["python"]
+
+[tool.setuptools.package-data]
+"taggablebanner" = ["resources/*/*"]

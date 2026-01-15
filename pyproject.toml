@@ -30,3 +30,4 @@ where = ["python"]
 
 [tool.setuptools.package-data]
 "taggablebanner" = ["resources/*"]
+"taggablebanner" = ["resources/*/*"]

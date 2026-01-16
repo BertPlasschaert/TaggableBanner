@@ -52,7 +52,7 @@ jobs:
         python-version-file: "taggablebanner/pyproject.toml"
 
     - name: add tag
-      run: uv run python/taggablebanner/cli.py add "$ISSUE_AUTHOR"
+      run: taggablebanner add "$ISSUE_AUTHOR"
 
     - name: commit and push updates
       run: |

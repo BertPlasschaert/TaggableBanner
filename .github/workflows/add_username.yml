@@ -63,9 +63,6 @@ jobs:
         git commit -m "added username: $ISSUE_AUTHOR"
         git push
 
-    # Purge banner.svg cache to instantly show updates
-    - uses: kevincobain2000/action-camo-purge@v1
-
   comment_on_issue:
 
     name: "add comment to the triggering issue"

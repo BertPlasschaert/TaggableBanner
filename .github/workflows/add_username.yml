@@ -55,7 +55,7 @@ jobs:
     - name: add tag
       run: taggablebanner add "$ISSUE_AUTHOR"
 
-    - name: add tag
+    - name: make banner name unique
       run: taggablebanner fix_cache
 
     - name: commit and push updates

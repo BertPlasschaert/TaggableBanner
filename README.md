@@ -1,4 +1,4 @@
-![banner](banner.svg)
+![banner](banner833743.svg)
 
 Try it out on [my profile!](https://github.com/BertPlasschaert) Or discover how this works [here](TODO)(TODO).
 
@@ -7,6 +7,7 @@ Try it out on [my profile!](https://github.com/BertPlasschaert) Or discover how 
 <summary>Users who have tagged the banner</summary>
 
 <!--begin usernames-->
+###### [BertPlasschaert](https://github.com/BertPlasschaert) on 18/01/2026
 <!--end usernames-->
 
 ##### Thank you all for adding your username!

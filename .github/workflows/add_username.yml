@@ -55,6 +55,9 @@ jobs:
     - name: add tag
       run: taggablebanner add "$ISSUE_AUTHOR"
 
+    - name: add tag
+      run: taggablebanner fix_cache
+
     - name: commit and push updates
       run: |
         git config --global user.name "github-actions[bot]"

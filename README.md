@@ -1,5 +1,4 @@
-<!--![banner](banner.svg)-->
-![banner](https://raw.githubusercontent.com/BertPlasschaert/taggable_banner/ab32563ff461e8ff4ab037b0335777840521b93d/banner.svg)
+![banner](banner.svg)
 
 Try it out on [my profile!](https://github.com/BertPlasschaert) Or discover how this works [here](TODO)(TODO).
 

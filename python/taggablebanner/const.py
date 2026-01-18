@@ -7,10 +7,23 @@ from pathlib import Path
 from taggablebanner.svgutils.fontbb import FontBB
 from taggablebanner.svgutils.colorpreset import ColorPreset
 
-# NOTE: set optional custom folder root via environment variable
-TARGET_FOLDER = os.environ.get("TAGGABLE_BANNER_ROOT", "")
 
-BANNER_FILE = Path(TARGET_FOLDER, Path("banner.svg"))
+from pathlib import Path
+
+
+def get_latest_banner_file(directory: Path):
+    def get_creation_time(item):
+        return item.stat().st_ctime
+
+    items = directory.glob("banner*.svg")
+    sorted_items = sorted(items, key=get_creation_time)
+    return sorted_items[-1]
+
+
+# NOTE: set optional custom folder root via environment variable
+TARGET_FOLDER = Path(os.environ.get("TAGGABLE_BANNER_ROOT", ""))
+
+BANNER_FILE = get_latest_banner_file(TARGET_FOLDER)
 MD_FILE = Path(TARGET_FOLDER, Path("README.md"))
 
 MODULE_ROOT = Path(__file__).parent

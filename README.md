@@ -44,12 +44,14 @@ And I was able to use CSS within the SVG to make the banner respond to **light a
 Just pip install the repo using the following command:
 `pip install git+https://github.com/BertPlasschaert/taggable_banner`
 
-This provides two CLI commands:
-A check to see if the username is already in the banner: `taggablebanner check "<username>"`
-A command to add the username to the banner: `taggablebanner add "<username>"`
+This provides three CLI commands:
+- A check to see if the username is already in the banner: `taggablebanner check "<username>"`
+- A command to add the username to the banner: `taggablebanner add "<username>"`
+- A command to rename the bannerfile to a random name: `taggablebanner fix_cache`
+> This ensures the file pointer in the readme.md file can never be cached, updates will show up instantly.
 
-Use these two commands to test the code locally.
-The github actions installs the same package and calls the same commands when an issue is opened.
+Use the first two commands to test the code locally.
+The github action installs the same package and calls the same commands when an issue is opened.
 
 ## Add it to your own repo
 Start by copying the workflow file from this repo into your own repo. 
@@ -59,7 +61,7 @@ Make sure **issues** are **enabled**, and **actions** have **read and write perm
 
 You can copy the `README_example.md` file from the `examples\` folder to start working from.
 
-Don't forget the update the link in the button to your repo.
+Don't forget to update the link in the button towards your repo.
 The URL params in that link will prepopulate the issue body and title.
 
 

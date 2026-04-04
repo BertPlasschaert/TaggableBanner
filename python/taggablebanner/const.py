@@ -15,7 +15,9 @@ def get_latest_banner_file(directory: Path):
     def get_creation_time(item):
         return item.stat().st_ctime
 
-    items = directory.glob("banner*.svg")
+    items = list(directory.glob("banner*.svg"))
+    if not items:
+        return Path(directory, "banner.svg")
     sorted_items = sorted(items, key=get_creation_time)
     return sorted_items[-1]
 

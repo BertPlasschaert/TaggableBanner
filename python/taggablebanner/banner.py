@@ -349,8 +349,6 @@ def add_tag(text: str) -> svg.SVG:
             *[preset.gradient_elements for preset in const.COLOR_PRESETS],
             svg.Style(text=element_encoded_fonts()),
             svg.Style(text=element_color_switcher()),
-            # svg.Style(text=".test {fill:url(#front_title_gradient);}"),
-            # svg.Style(text=gradient_test),
         ],
     )
 

@@ -9,7 +9,7 @@ description = "Generate an interactable SVG graffiti wall."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "svg-py>=1.9.2",
+    "svg-py>=1",
 ]
 authors = [
   {name = "Bert Plasschaert", email = "bert.plasschaert@outlook.com"},

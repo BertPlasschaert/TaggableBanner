@@ -17,7 +17,7 @@ authors = [
 license = "MIT"
 
 [project.urls]
-Homepage = "https://github.com/BertPlasschaert/taggable_banner"
+Homepage = "https://github.com/BertPlasschaert/TaggableBanner"
 
 [project.scripts]
 taggablebanner = "taggablebanner.cli:cli"

@@ -1,6 +1,6 @@
 ![banner](banner833743.svg)
 
-Try it out on [my profile](https://github.com/BertPlasschaert), or [read about the journey building it.](/writup/writeup.md)
+Try it out on [my profile](https://github.com/BertPlasschaert), or [read about the journey building it.](/writeup/writeup.md)
 
 <details>
 
@@ -40,7 +40,7 @@ The banner SVG file scales perfectly for every screen, and is **light and dark m
 
 
 If you want to test the functionality on your own machine you can pip install the repo using the following command:  
-`pip install git+https://github.com/BertPlasschaert/taggable_banner`
+`pip install git+https://github.com/BertPlasschaert/TaggableBanner`
 
 This provides three CLI commands:
 - A check to see if the username tag is already in the banner: `taggablebanner check "<username>"`
